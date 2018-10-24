@@ -5,13 +5,14 @@
 
 import os
 import oss2
+import copy
 import json
 import time
+import config
 import hashlib
 import argparse
 import subprocess
-import config
-
+import textVersionJson
 
 class freeFile(object):
     """介绍
@@ -45,11 +46,11 @@ class freeFile(object):
         self.name = args.name
         self.expiredTime = args.time
         self.encrypt = args.encrypt
-
         # 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
-        self.auth = oss2.Auth('LTAI8pObJoHkFDYW', 'wiI200gyXQ3PnUl85TV64EYd3T1MtH')
+        self.auth = oss2.Auth(config.getConfig("AliOSS", "AccessKey"), config.getConfig("AliOSS", "AccessKeySecret"))
         # Endpoint以杭州为例，其它Region请按实际情况填写。
-        self.bucket = oss2.Bucket(self.auth, 'http://oss-cn-hangzhou.aliyuncs.com', 'catone')
+        self.bucket = oss2.Bucket(self.auth, config.getConfig("AliOSS", "Endpoint"), config.getConfig("AliOSS", "Bucket"))
+        self.baseUrl = config.getConfig("AliOSS", "BaseUrl")
 
 
     def encodeToBin(self, s):
@@ -63,42 +64,74 @@ class freeFile(object):
     
     def CheckPathVaild(self, path) -> bool:
         try:
-            os.path.exists(path)
-        except TypeError:
+            os.access(path, os.F_OK)
+        except:
             return False
         else:
-            return True
+            return os.access(path, os.F_OK)
 
     def CreateArchive(self) -> str:
         Path = self.filePath
-
+        jsonVersion = []
+        print(Path)
         if self.CheckPathVaild(Path):
             if not self.CheckName():
                 self.CreateFileIdentificationName()
 
+                newVersion = copy.deepcopy(textVersionJson.version)
+                newVersion['Name'] = self.name
+                newVersion['TimeStamp'] = self.timestamp
+                if self.expiredTime == None:
+                    newVersion['Expired'] = 7
+                else:
+                    newVersion['Expired'] = self.expiredTime
+                newVersion['HashInfo']['FINInfo'] = self.FIN
+                newVersion['HashInfo']['FileHash'] = self.fileHash
+
+            if self.CheckPathVaild(self.FIN+".tar.bz2"+".version.json"):
+                fPrint = open(self.FIN+".tar.bz2"+".version.json", "r+",encoding="utf-8")
+                jsonVersion = json.loads(fPrint.read())
+                newVersion['Version'] = jsonVersion[-1]['Version'] + 1
+                fPrint.close()
+            else:
+                newVersion['Version'] = 1
+            jsonVersion.append(newVersion)
+            fPrint = open(self.FIN+".tar.bz2"+".version.json", "w",encoding="utf-8")
+            json.dump(jsonVersion,fPrint)
             subprocess.check_output("tar -jcvf " + self.name + ".tar.bz2 " + Path, shell=True)
 
         self.archiveFileName = self.name + ".tar.bz2"
 
 
     def PullArchive(self):
-        url = "https://catone.oss-cn-hangzhou.aliyuncs.com/"
+        try:
+            subprocess.check_output("wget " + self.baseUrl+(self.name+".version.json"), shell=True)
+        except:
+            print("\033[1;31;40m[ERROR]\033[0m Not found file from OSS Service")
+
 
 
     def PushArchive(self) -> bool:
 
         # 必须以二进制的方式打开文件，因为需要知道文件包含的字节数
+
         try:
             with open(self.archiveFileName, 'rb') as fileobj:
                 fileobj.seek(0, os.SEEK_SET)
                 current = fileobj.tell()
                 self.bucket.put_object(self.archiveFileName, fileobj)
+            with open(self.archiveFileName+".version.json", 'rb') as fileobj:
+                fileobj.seek(0, os.SEEK_SET)
+                current = fileobj.tell()
+                self.bucket.put_object(self.archiveFileName+".version.json", fileobj)
+
         except:
             print("\033[1;31;40m[ERROR]\033[0m OSS Service Error")
         else:
             print("\033[1;32m[SUCCESS]\033[0m Successfully push file is "+self.archiveFileName)
-            subprocess.check_output("rm -f "+ self.archiveFileName, shell=True)
 
+            subprocess.check_output("mv %s .data/"+ self.archiveFileName, shell=True)
+            subprocess.check_output("mv %s .data/"+ self.archiveFileName, shell=True)
 
 
 
@@ -115,17 +148,18 @@ class freeFile(object):
         # 输出告警, 标志没有自定义FIN则自动生成一个.
         # 先只考虑只传一个文件/目录的情况
         try:
-            fileHash = hashlib.sha256(open(Path,'rb').read()).hexdigest()
+            self.fileHash = hashlib.sha256(open(Path,'rb').read()).hexdigest()
+            # 尝试读取文件，生成fileHash
         except FileNotFoundError:
             print("\033[1;31;40m[ERROR]\033[0m No such file or directory")
             exit(1)
         else:
-            timestamp = str(int(time.time()))
+            self.timestamp = str(int(time.time()))
             osInfoHash = hashlib.sha256(subprocess.check_output("uname -a", shell=True)).hexdigest()
-
-            FIN = hashlib.sha256((fileHash + timestamp + osInfoHash).encode("utf-8")).hexdigest()
-            print("\033[1;32m[SUCCESS]\033[0m Successfully Create FIN is "+FIN)
-            self.name = FIN
+            self.FIN = hashlib.sha256((self.fileHash + self.timestamp + osInfoHash).encode("utf-8")).hexdigest()
+            print("\033[1;32m[SUCCESS]\033[0m Successfully Create FIN is "+self.FIN)
+            if self.name == None:
+                self.name = self.FIN
 
     def main(self):
         self.CreateArchive()
