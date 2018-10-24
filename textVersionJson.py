@@ -8,9 +8,11 @@ version = {
     "Version":"",
     "Name":"",
     "TimeStamp":"",
+    "FileName":"",
     "Expired":"",
     "HashInfo":{
         "FINInfo":"",
         "FileHash":"",
+
     }
 }
