@@ -9,11 +9,9 @@ import oss2
 import copy
 import json
 import time
-import config
 import hashlib
 import argparse
 import subprocess
-import textVersionJson
 
 class freeFile(object):
     """介绍
@@ -44,9 +42,6 @@ class freeFile(object):
         parser.add_argument('-push', action='store_true', help='push file from oss service')
         parser.add_argument('-pull', action='store_true', help='pull file from oss service')
 
-
-
-        # parser.add_argument("-")
         args = parser.parse_args()
         self.filePath = args.filePath
         # self.directoryPath = args.directoryPath
@@ -56,10 +51,10 @@ class freeFile(object):
         self.pushBool = args.push
         self.pullBool = args.pull
         # 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
-        self.auth = oss2.Auth(config.getConfig("AliOSS", "AccessKey"), config.getConfig("AliOSS", "AccessKeySecret"))
+        self.auth = oss2.Auth("LTAI8pObJoHkFDYW", "wiI200gyXQ3PnUl85TV64EYd3T1MtH")
         # Endpoint以杭州为例，其它Region请按实际情况填写。
-        self.bucket = oss2.Bucket(self.auth, config.getConfig("AliOSS", "Endpoint"), config.getConfig("AliOSS", "Bucket"))
-        self.baseUrl = config.getConfig("AliOSS", "BaseUrl")
+        self.bucket = oss2.Bucket(self.auth, "http://oss-cn-hangzhou.aliyuncs.com", "catone")
+        self.baseUrl = "https://catone.oss-cn-hangzhou.aliyuncs.com/"
 
 
     def encodeToBin(self, s):
@@ -107,14 +102,11 @@ class freeFile(object):
             print("\033[1;31;40m[ERROR]\033[0m Not found file from OSS Service")
         else:
             subprocess.check_output("tar xvf " + self.name, shell=True)
-            subprocess.check_output("mv")
             subprocess.check_output("rm -f " + self.name, shell=True)
 
 
 
     def PushArchive(self) -> bool:
-
-        # 必须以二进制的方式打开文件，因为需要知道文件包含的字节数
 
         try:
             with open(self.archiveFileName, 'rb') as fileobj:
@@ -126,6 +118,8 @@ class freeFile(object):
             print("\033[1;31;40m[ERROR]\033[0m OSS Service Error")
         else:
             print("\033[1;32m[SUCCESS]\033[0m Successfully push file is "+self.archiveFileName)
+            subprocess.check_output("rm -f " + self.archiveFileName, shell=True)
+
 
     def CreateFileHash(self) -> str:
         Path = self.filePath
@@ -177,19 +171,3 @@ if __name__ == '__main__':
     test = freeFile()
     test.main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
