@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
 
+
 setup(
     name="freeFile",
     packages=find_packages(),
-    version='0.0.4',
+    version='0.0.1',
     description="command line tool for auto update/download program.",
     author="Cat.1",
     author_email='zhuyuefeng0@gmail.com',

@@ -9,9 +9,13 @@ import oss2
 import copy
 import json
 import time
+import getopt
 import hashlib
 import argparse
 import subprocess
+try:import configparser
+except:from six.moves import configparser 
+
 
 class freeFile(object):
     """介绍
@@ -29,27 +33,67 @@ class freeFile(object):
     def __init__(self):
         """init Function
         
-        初始化argoarse读入的参数.
+        初始化/检查配置文件
         """
+        if os.path.exists("/etc/freeFile/ff.conf"):
+            print("\033[1;32m[SUCCESS]\033[0m Find the configFile Success!")
+            name = ConfigRead().getConfig("[baseConfig]", "name")
+            OSS_Choice = ConfigRead().getConfig("[baseConfig]", "OSS_Choice")
+
+        else:
+            print("\033[1;35m[WARNING]\033[0m Not find configFile!")
+            print("\033[1;32m[CONFIGURE]\033[0m Please configure your configFile!")
+            name = input("\033[1;32m[INPUT]\033[0m yourName[default HostName]: ")
+            OSS_Choice = input("\033[1;32m[CHOOSE]\033[0m [1]. AliYun(default)\n[2]. Amazon S3\n[3]. Google Cloud")
+
+            writeConfiger = open("/etc/freeFile/ff.conf")
+            writeConfiger.write("""[baseConfig]\n
+                                    # baseConfigure\n
+                                    name=%s\n
+                                    OSS_Choice=%s\n
+                                    encrypt=no\n
+                                    """ %(name, OSS_Choice))
+            writeConfiger.close()
+
+    def checkCommand(self):
+        if self.action == "push":
+
+        elif self.action == "pull":
+
+        else:
+            print("\033[1;31;40m[ERROR]\033[0m Not understand your command\nPlease input: ff push/pull ...")
+            return -1
+
+
+    def initArgument(self):
+        """init Function
+        
+        初始化argoarse读入的参数.
+        """        
 
         parser = argparse.ArgumentParser(description='Usage under args.')  
-
         parser.add_argument("-f", dest = "filePath", help = "FilePath" )
-        parser.add_argument("-d", dest = "directoryPath", help = "directoryPath")
-        parser.add_argument("--name", dest = "name", help = "Update/Download FIN(File identification name)")
+        parser.add_argument("--name", dest = "name", help = "Update/Download use FIN.tar.bz2 or name.tar.bz2")
         parser.add_argument("-t", dest = "time", help = "File/directory expired time")
         parser.add_argument("--encrypt", dest = "encrypt", help = "If you need a private access file/directory, please give your gpg public key location")
-        parser.add_argument('-push', action='store_true', help='push file from oss service')
-        parser.add_argument('-pull', action='store_true', help='pull file from oss service')
+        parser.add_argument('push', action='store_true', help='push file to oss service')
+        parser.add_argument('pull', action='store_true', help='pull file from oss service')
 
-        args = parser.parse_args()
+        self.action = sys.argv[1]
+
+        args = parser.parse_args(list(sys.argv[2:]))
         self.filePath = args.filePath
-        # self.directoryPath = args.directoryPath
         self.name = args.name
         self.expiredTime = args.time
         self.encrypt = args.encrypt
-        self.pushBool = args.push
-        self.pullBool = args.pull
+
+
+    def initAliYun(self):
+        """init Function
+        
+        初始化AliYun OSS配置.
+        """
+
         # 阿里云主账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM账号进行API访问或日常运维，请登录 https://ram.console.aliyun.com 创建RAM账号。
         self.auth = oss2.Auth("LTAI8pObJoHkFDYW", "wiI200gyXQ3PnUl85TV64EYd3T1MtH")
         # Endpoint以杭州为例，其它Region请按实际情况填写。
@@ -97,11 +141,11 @@ class freeFile(object):
 
     def PullArchive(self):
         try:
-            subprocess.check_output("wget " + self.baseUrl+(self.name), shell=True)
+            subprocess.check_output("wget -q " + self.baseUrl+(self.name), shell=True)
         except:
             print("\033[1;31;40m[ERROR]\033[0m Not found file from OSS Service")
         else:
-            subprocess.check_output("tar xvf " + self.name, shell=True)
+            subprocess.check_output("pv " + self.name + " | tar xvf ./", shell=True)
             subprocess.check_output("rm -f " + self.name, shell=True)
 
 
@@ -165,6 +209,19 @@ class freeFile(object):
             self.PushArchive()
         elif self.pullBool:
             self.PullArchive()
+
+
+class ConfigRead(object):
+
+
+    # 获取config配置文件
+    # 类方法，第一参数默认传入cls，可被类/实例调用
+    @classmethod
+    def getConfig(cls, section, key):
+        config = configparser.ConfigParser()
+        path = '/etc/freeFile/ff.conf'
+        config.read(path)
+        return config.get(section, key)
 
 
 if __name__ == '__main__':
