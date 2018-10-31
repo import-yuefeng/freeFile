@@ -16,7 +16,9 @@ import subprocess
 import re
 
 FIN = "ASHJKDkagkjs"
-result = subprocess.check_output("mc share upload minio/test/"+FIN, shell=True)
-# print(result)
-print(re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@]+)<FILE>", str(result))[0])
+ip = subprocess.check_output("curl ip.sb", shell=True)
+print(str(ip).split(r"\n")[0][2:])
+# result = subprocess.check_output("mc share upload minio/test/"+FIN, shell=True)
+# # print(result)
+# print(re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@]+)<FILE>", str(result))[0])
 
