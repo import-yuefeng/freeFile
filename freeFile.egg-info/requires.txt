@@ -1,3 +1,0 @@
-oss2
-configparser
-six
