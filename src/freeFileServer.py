@@ -22,7 +22,10 @@ def Upload():
     expiredTime = request.args.get("expired")
     nameSpace = request.args.get("nameSpace")
     fileName = request.args.get("fileName")
-    if isinstance(FIN, str) or isinstance(nameSpace, str):
+        
+    if isinstance(FIN, str) or isinstance(nameSpace, str) \
+     or isinstance(expiredTime, str)\
+     or isinstance(time, str):
         # 接下来先检查是否存在FIN, 没有则将文件信息写入数据库[Mysql]
         # 返回准许上传的临时Url
         if isinstance(expiredTime, str):
@@ -30,9 +33,10 @@ def Upload():
             shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@]+)<FILE>", str(result))[0]
             response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
         else:
+
             if 'h' in expiredTime or 'm' in expiredTime or 's' in expiredTime:
                 result = subprocess.check_output("mc share upload --expire %s minio/test/%s"%(expiredTime, FIN), shell=True)
-                shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@]+)<FILE>", str(result))[0]
+                shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@?%&]+)<FILE>", str(result))[0]
                 response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
             else:
                 response = Response(json.dumps({"message":"Unprocessable Entity.", "statusCode":422}), mimetype = 'application/json')
@@ -60,11 +64,11 @@ def Download():
         elif name != None or name != "":
             result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, name), shell=True)
 
-        shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@]+)", str(result))[0]
-        
+        shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@?%&]+)", str(result))[0]
+        print(shareUrl)
         response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
     except:
-        response = Response(json.dumps({"message":"Server Error", "shareUrl":"", "statusCode":500}), mimetype = 'application/json')
+        response = Response(json.dumps({"message":"Server Error Or Object does not exist", "shareUrl":"", "statusCode":500}), mimetype = 'application/json')
     finally:
         response.headers.add('Server','python flask')       
         response.headers['Access-Control-Allow-Origin'] = '*'
@@ -75,7 +79,6 @@ def Download():
 
 
 
-    
 
 # @app.before_request
 # def redirect():
@@ -92,7 +95,7 @@ def Download():
             
 if __name__ == '__main__':
 
-    app.run(host="127.0.0.1", port=int(9090), debug = True)
+    app.run(host="0.0.0.0", port=int(65527), debug = True)
 
 
 

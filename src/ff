@@ -15,11 +15,9 @@ import requests
 import argparse
 import platform
 import subprocess
-# from minio import Minio
 try:import configparser
 except:from six.moves import configparser 
-# from minio.error import (ResponseError, BucketAlreadyOwnedByYou,
-#                          BucketAlreadyExists)
+
 
 
 class freeFile(object):
@@ -37,15 +35,38 @@ class freeFile(object):
     """
     OSINFOCMD = "uname -a"
 
+
+
     def __init__(self):
         """init Function
         
         初始化必要数据.
         """
+        # self.initStream()
         self.initArgument()
         self.initConfig()
         self.initOSS()
+        self.initCommand()
 
+    def initStream(self):
+
+        self.StreamFileFlag = 0
+
+        streamLine = None
+        writeStreamFile = open("./tmpFile.txt", "w")
+
+        while True:
+            streamLine = sys.stdin.readline()
+            if not streamLine:
+                break
+            # 用户传入了流文件到freeFile中
+            writeStreamFile.writelines(streamLine)
+            self.StreamFileFlag = 1
+        writeStreamFile.close()
+
+
+    def initArgument(self):
+        self.name, self.FIN, self.nameSpace, self.hostName = [None for i in range(0, 4)]
 
     def initConfig(self):
         """init Function
@@ -70,7 +91,7 @@ class freeFile(object):
             OSS_Choice = input("\033[1;32m[CHOOSE]\033[0m Input your Choose\n[1]. Minio(default)\n[2]. AliYun\n[3]. Amazon S3\n[4]. Google Cloud\nYour Choose: ")
             if name == "\n":
                 name = socket.gethostname()
-            elif OSS_Choice == '\n' or OSS_Choice == None:
+            elif OSS_Choice == '\n' or OSS_Choice == '':
                 OSS_Choice = "Minio"
             try:
                 subprocess.check_output("sudo mkdir /etc/freeFile", shell=True)
@@ -86,7 +107,7 @@ class freeFile(object):
             # 生成新的配置文件后再次递归调用来读取配置文件
             self.initConfig()
 
-    def initArgument(self):
+    def initCommand(self):
         """init Function
         
         初始化argoarse读入的参数.
@@ -94,23 +115,32 @@ class freeFile(object):
 
         parser = argparse.ArgumentParser(description='Usage under args.')  
         parser.add_argument("-i", "--source",  dest = "filePath", help = "FilePath")
-        parser.add_argument("-n", "--name", dest = "name", help = "Update/Download use FIN or name")
+        parser.add_argument("-n", "--name", dest = "name", help = "Update/Download use FIN or nameSpace")
         parser.add_argument("-t", "--time", dest = "time", help = "File/directory expired time")
         parser.add_argument("-e", "--encrypt", dest = "encrypt", help = "If you need a private access file/directory, please give your gpg public key location")
         parser.add_argument('push', action='store_true', help='push file to oss service')
         parser.add_argument('pull', action='store_true', help='pull file from oss service')
         parser.add_argument('-q', "--quiet", action='store_true', help='quiet run freeFile')
-        try:sys.argv[1]
-        except:
+
+        try:
+            # 首个指令必须为 push/pull
+            sys.argv[1]
+        except IndexError:
             print("\033[1;31;40m[ERROR]\033[0m Not understand your command\n\033[1;35m[WARNING]\033[0m Please input: ff push/pull [Arguments]")
             exit(1)
+        except:
+            pass
         else:
             self.action = sys.argv[1]
             args = parser.parse_args(list(sys.argv[2:]))
             self.filePath = args.filePath
-
-            self.name = args.name
-
+            if sys.argv[1] == 'pull':
+                if "/" in args.name:
+                    self.nameSpace = args.name
+                else:
+                    self.name = args.name
+            else:
+                self.name = args.name
             # 在pull到本地时，FIN和name都应该是args.name的参数
             self.expiredTime = args.time
             self.encrypt = args.encrypt
@@ -131,17 +161,19 @@ class freeFile(object):
         if self.action == "push":
             return 1
         elif self.action == "pull":
+            self.FIN = self.name
             return 2
         else:
-            print("\033[1;31;40m[ERROR]\033[0m Not understand your command\nPlease input: ff push/pull ...")
-            exit(1)
+            return 3
+            # print("\033[1;31;40m[ERROR]\033[0m Not understand your command\nPlease input: ff push/pull ...")
+            # exit(1)
 
     def CheckNameIsNone(self) -> bool:
         return (self.name == None)
     
     def CheckPathVaildIsError(self, path) -> bool:
         try:
-            os.access(path, os.F_OK)
+            fileBool = os.access(path, os.F_OK)
         except:
             return False
         else:
@@ -155,7 +187,7 @@ class freeFile(object):
                     }
             timestamp = str(int(time.time()))
             if self.expiredTime == None:
-                self.expiredTime = '7d'
+                self.expiredTime = '24h'
 
             response = requests.get(url='http://115.238.228.39:9091/applyupload?&FIN=%s&time=%s&expired=%s&nameSpace=%s&fileName=%s'%(
                 self.FIN+"tar.gz", timestamp, self.expiredTime, self.hostName, self.GetOriginFileName()), headers=headers)
@@ -169,16 +201,23 @@ class freeFile(object):
         elif target == 'pull':
 
             if self.expiredTime == None:
-                self.expiredTime = '7d'
+                self.expiredTime = '24h'
             timestamp = str(int(time.time()))
-            response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=%s'%(
-                self.FIN+"tar.gz", timestamp, self.expiredTime, self.GetOriginFileName()))
+            if self.nameSpace != None:
+
+                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=%s'%(
+                    self.FIN+"tar.gz", timestamp, self.expiredTime, self.nameSpace))
+            else:
+                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=None'%(
+                    self.FIN+"tar.gz", timestamp, self.expiredTime))
 
             responseJson = response.json()
             if responseJson["statusCode"] != 200:
                 print("\033[1;31;40m[ERROR]\033[0m %s"%responseJson["message"])
                 print("\033[1;31;40m[statusCode]\033[0m %s"%responseJson["statusCode"])
                 exit(1)
+            else:
+                return responseJson["shareUrl"]
         else:
             print("\033[1;31;40m[ERROR]\033[0m Request not valid.")
             exit(1)
@@ -187,19 +226,23 @@ class freeFile(object):
 
 
     def PullArchive(self):
+        downloadUrl = self.ApplyApi("pull")
         try:
-            subprocess.check_output("wget -q " + self.baseUrl+(self.name), shell=True)
+            subprocess.check_output(["wget", downloadUrl, "-O", '{0}.tar.gz'.format(self.name)])
         except:
             print("\033[1;31;40m[ERROR]\033[0m Not found file from OSS Service")
         else:
+            print("\033[1;32m[SUCCESS]\033[0m Successfully pull file is "+self.name)
             subprocess.check_output("pv %s.tar.gz | tar -zxf -"%(self.name), shell=True)
-            subprocess.check_output("rm -f " + self.name, shell=True)
+            subprocess.check_output("rm -f " + self.name + '.tar.gz', shell=True)
+
 
 
 
     def PushArchive(self) -> bool:
 
         shareUrl = self.ApplyApi("push")
+        print(shareUrl)
         try:
             subprocess.check_output(shareUrl + self.archiveFileName, shell=True)
         except:
@@ -234,9 +277,11 @@ class freeFile(object):
                 subprocess.check_output("tar -cf - %s | pv -s $(du -sb %s | awk '{print $1}') | gzip > %s.tar.gz"%(self.filePath, self.filePath, self.FIN), shell=True)
             else:
                 subprocess.check_output("tar -cf - %s | pv -s $(($(du -sk %s | awk '{print $1}') * 1024)) | gzip > %s.tar.gz"%(self.filePath, self.filePath, self.FIN), shell=True)
-
-        self.archiveFileName = self.FIN + ".tar.gz"
-
+            
+            self.archiveFileName = self.FIN + ".tar.gz"
+        else:
+            print("\033[1;31;40m[ERROR]\033[0m Not found file.")
+            exit(1)
 
     def CreateFIN(self):
 
