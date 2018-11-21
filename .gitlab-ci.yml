@@ -43,7 +43,7 @@ build:
   stage: build_image
   script:
     # 重新构建docker_image
-    - docker build -t="catone/freeFile:test" .
+    - docker build -t="catone/freefile:test" .
   when:
     always
 
@@ -51,7 +51,7 @@ pre_deploy:
   # push到hub.docker 远端用于部署
   stage: deploy_image
   script: 
-    - docker push catone/freeFile:test
+    - docker push catone/freefile:test
   when:
     on_success
   only:
