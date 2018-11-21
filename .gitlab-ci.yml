@@ -53,7 +53,7 @@ build:
     # 重新构建docker_image
     - docker build -t="catone/freefile:test" -f ./server/Dockerfile ./server/Dockerfile.
   dependencies:
-    - test
+    - pyTest
   
   when: always
 
