@@ -32,19 +32,19 @@ pre_build:
 redisTest:
   stage: deployTest
   script:
-    - docker run -d redis:latest
+    - docker run -d --name="redis_test" redis:latest
   when: always
 
 mysqlTest:
   stage: deployTest
   script:
-    - docker run -d mysql:latest
+    - docker run -d --name="mysql_test" mysql:latest
   when: always
 
 freeFileServerEnd:
   stage: deployTest
   script:
-    - echo freeFileServerEnd
+    - docker run -d -P --name="free_file_test" catone/freefile:test
   when: always
 
 pyTest:
@@ -57,7 +57,10 @@ cleaner:
   stage: cleanTest
   script:
     - echo cleanTestEnv
-
+    - docker rm -f free_file_test 
+    - docker rm -f mysql_test
+    - docker rm -f redis_test
+  when: always
 
 build:
   stage: build_image
