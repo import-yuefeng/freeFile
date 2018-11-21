@@ -45,7 +45,7 @@ build:
     # 重新构建docker_image
     - docker build -t="catone/freeFile:test" .
   when:
-    - always
+    always
 
 pre_deploy:
   # push到hub.docker 远端用于部署
