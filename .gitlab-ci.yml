@@ -44,7 +44,7 @@ mysqlTest:
 freeFileServerEnd:
   stage: deployTest
   script:
-    - docker run -d -P --name="free_file_test" catone/freefile:test
+    - docker run -d -P --name="free_file_test" catone/freefile:pre_build
   when: always
 
 pyTest:
