@@ -17,21 +17,29 @@ loginDocker:
   script:
     - docker login -u="catone" -p="u6xrMcM4"
 
-test1:
+redisTest:
   stage: test
   script:
-    - echo hello world
+    - echo redisTest
+  when: always
 
-test2:
+mysqlTest:
   stage: test
   script:
-    - echo hello world
+    - echo mysqlTest
+  when: always
 
-test3:
+freeFileServerEnd:
   stage: test
   script:
-    - echo hello world
+    - echo freeFileServerEnd
+  when: always
 
+pyTest:
+  stage: test
+  script:
+    - echo pyTest
+  when: always
 
 # test:
 #   stage: testDeploy
@@ -43,18 +51,27 @@ build:
   stage: build_image
   script:
     # 重新构建docker_image
-    - docker build -t="catone/freefile:test" .
-  when:
-    always
+    - docker build -t="catone/freefile:test" -f ./server/Dockerfile ./server/Dockerfile.
+  dependencies:
+    - test
+  
+  when: always
 
 pre_deploy:
   # push到hub.docker 远端用于部署
   stage: deploy_image
   script: 
     - docker push catone/freefile:test
-  when:
-    on_success
+  dependencies:
+    - loginDocker
+  when: on_success
   only:
     - dev
+
+after_script:
+
+  - docker run -d -P catone/freefile:test
+
+
 
 
