@@ -1,5 +1,6 @@
 stages: 
   # - testDeploy
+  - loginDocker
   - build_image
   - deploy_image
 
@@ -8,7 +9,12 @@ before_script:
   # 测试docker是否正常启动
   - whoami
   - docker info
-  - docker login -u="catone" -p="u6xrMcM4"
+
+loginDocker:
+
+  stage: loginDocker
+  script:
+    - docker login -u="catone" -p="u6xrMcM4"
 
 # test:
 #   stage: testDeploy
@@ -22,12 +28,13 @@ build:
     # 重新构建docker_image
     - docker build -t="catone/freeFile:test" .
 
-
 pre_deploy:
   # push到hub.docker 远端用于部署
   stage: deploy_image
   script: 
     - docker push catone/freeFile:test
+  when:
+    on_success
   only:
     - dev
 
