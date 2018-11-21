@@ -1,7 +1,10 @@
 stages: 
   # - testDeploy
   - loginDocker
+  - pre_build
+  - deployTest
   - test
+  - cleanTest
   - build_image
   - deploy_image
 
@@ -16,21 +19,30 @@ loginDocker:
   stage: loginDocker
   script:
     - docker login -u="catone" -p="u6xrMcM4"
+  retry: 10
+
+pre_build:
+  stage: pre_build
+  script:
+    # 重新构建docker_image
+    - docker build -t="catone/freefile:pre_build" -f ./server/Dockerfile ./server/
+  when: always
+
 
 redisTest:
-  stage: test
+  stage: deployTest
   script:
-    - echo redisTest
+    - docker run -d redis:latest
   when: always
 
 mysqlTest:
-  stage: test
+  stage: deployTest
   script:
-    - echo mysqlTest
+    - docker run -d mysql:latest
   when: always
 
 freeFileServerEnd:
-  stage: test
+  stage: deployTest
   script:
     - echo freeFileServerEnd
   when: always
@@ -41,20 +53,19 @@ pyTest:
     - echo pyTest
   when: always
 
-# test:
-#   stage: testDeploy
-#   script:
-#     - 
+cleaner:
+  stage: cleanTest
+  script:
+    - echo cleanTestEnv
 
 
 build:
   stage: build_image
   script:
     # 重新构建docker_image
-    - docker build -t="catone/freefile:test" -f ./server/Dockerfile ./server/Dockerfile.
+    - docker build -t="catone/freefile:test" -f ./server/Dockerfile ./server/
   dependencies:
-    - pyTest
-  
+    - pyTest  
   when: always
 
 pre_deploy:
@@ -67,11 +78,4 @@ pre_deploy:
   when: on_success
   only:
     - dev
-
-after_script:
-
-  - docker run -d -P catone/freefile:test
-
-
-
 
