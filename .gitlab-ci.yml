@@ -19,7 +19,7 @@ loginDocker:
   stage: loginDocker
   script:
     - docker login -u="catone" -p="u6xrMcM4"
-  retry: 10
+  retry: 2
 
 pre_build:
   stage: pre_build
