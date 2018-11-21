@@ -1,6 +1,7 @@
 stages: 
   # - testDeploy
   - loginDocker
+  - test
   - build_image
   - deploy_image
 
@@ -16,6 +17,22 @@ loginDocker:
   script:
     - docker login -u="catone" -p="u6xrMcM4"
 
+test1:
+  stage: test
+  script:
+    - echo hello world
+
+test2:
+  stage: test
+  script:
+    - echo hello world
+
+test3:
+  stage: test
+  script:
+    - echo hello world
+
+
 # test:
 #   stage: testDeploy
 #   script:
@@ -27,6 +44,8 @@ build:
   script:
     # 重新构建docker_image
     - docker build -t="catone/freeFile:test" .
+  when:
+    - always
 
 pre_deploy:
   # push到hub.docker 远端用于部署
