@@ -9,10 +9,10 @@ stages:
   - deploy_image
 
 
-before_script:
-  # 测试docker是否正常启动
-  - whoami
-  - docker info
+# before_script:
+#   # 测试docker是否正常启动
+#   - whoami
+#   - docker info
 
 loginDocker:
 
@@ -57,9 +57,9 @@ cleaner:
   stage: cleanTest
   script:
     - echo cleanTestEnv
-    - docker rm -f free_file_test 
-    - docker rm -f mysql_test
-    - docker rm -f redis_test
+    - docker rm -f free_file_test || true
+    - docker rm -f mysql_test || true
+    - docker rm -f redis_test || true
   when: always
 
 build:
