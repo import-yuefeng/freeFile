@@ -14,13 +14,6 @@ stages:
 #   - whoami
 #   - docker info
 
-loginDocker:
-
-  stage: loginDocker
-  script:
-    - docker login -u="catone" -p="u6xrMcM4"
-  retry: 2
-
 pre_build:
   stage: pre_build
   script:

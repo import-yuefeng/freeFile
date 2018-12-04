@@ -1,0 +1,17 @@
+#!/bin/sh
+if [ -t 0 ]; then
+    if [ -z "$1" ]; then
+      echo "usage: unu long_url [custom_keyword]"
+      echo ""
+      echo "Shorten URLs with u.nu URL shortener"
+      echo "This script expects a long URL to shorten either as an argument or passed through STDIN."
+      echo "When using arguments, an optional second argument can be provided to customize the later part of the short URL (keyword)."
+      exit 1
+    fi
+    url=$1;
+else
+    while read -r line ; do
+      url=$line
+    done
+fi 
+echo `wget -q -O - https://u.nu/api.php?action=shorturl\&format=simple\&url=$url\&keyword=$2`

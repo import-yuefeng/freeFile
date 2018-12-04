@@ -1,3 +1,4 @@
 redis==3.0.1
 flask-cors==3.0.7
 flask==1.0.2
+sh==1.12.14

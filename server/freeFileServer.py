@@ -45,7 +45,7 @@ def Upload():
 
     response.headers.add('Server','python flask')       
     response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,POST'
     response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
     return response
 
@@ -65,14 +65,13 @@ def Download():
             result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, name), shell=True)
 
         shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@?%&]+)", str(result))[0]
-        print(shareUrl)
         response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
     except:
         response = Response(json.dumps({"message":"Server Error Or Object does not exist", "shareUrl":"", "statusCode":500}), mimetype = 'application/json')
     finally:
         response.headers.add('Server','python flask')       
         response.headers['Access-Control-Allow-Origin'] = '*'
-        response.headers['Access-Control-Allow-Methods'] = 'OPTIONS,HEAD,GET,POST'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,POST'
         response.headers['Access-Control-Allow-Headers'] = 'x-requested-with'            
         return response
 
