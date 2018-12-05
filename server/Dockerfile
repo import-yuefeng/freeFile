@@ -1,15 +1,19 @@
-FROM ubuntu:16.04
+FROM alpine:latest
 MAINTAINER Cat.1 docker@gansi.me
 
-RUN apt-get update
-RUN apt-get install -y python3-pip
-RUN apt-get install -y python3 python-dev python3-dev \
-     build-essential libssl-dev libffi-dev \
-     libxml2-dev libxslt1-dev zlib1g-dev
+RUN echo "https://mirror.tuna.tsinghua.edu.cn/alpine/v3.4/main" > /etc/apk/repositories
+RUN apk update
 
-RUN apt-get install -y locales
-RUN locale-gen zh_CN.UTF-8
-ENV LC_ALL zh_CN.UTF-8
+RUN apk add --no-cache python3 wget && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple  --upgrade pip setuptools && \
+    rm -r /root/.cache 
+
+
+RUN apk add python-dev python3-dev
+
+ENV LC_ALL=zh_CN.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 RUN mkdir -p /freeFileServer/
@@ -19,7 +23,14 @@ RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -r /freeFileServer/
 ADD freeFileServer.py /freeFileServer/
 WORKDIR /freeFileServer
 
+RUN wget https://dl.minio.io/client/mc/release/linux-amd64/mc && \
+    chmod +x mc && mc config host add minio http://118.126.93.123:9000 BKIKJAA5BMMU2RHO6IBB 
+    V7f1CwQqAcwo80UEIJEjc5gVQUSSx5ohQ9GSrr12 
+
+
 EXPOSE 65527
 
 CMD python3 ./freeFileServer.py
+
+
 
