@@ -24,7 +24,8 @@ ADD freeFileServer.py /freeFileServer/
 WORKDIR /freeFileServer
 
 RUN wget https://dl.minio.io/client/mc/release/linux-amd64/mc && \
-    chmod +x mc && mc config host add minio http://118.126.93.123:9000 $ACCESSKEY \
+    chmod +x mc && cp mc /bin/ && \ 
+    mc config host add minio http://118.126.93.123:9000 $ACCESSKEY \
     $SECRETKEY
 
 EXPOSE 65527
