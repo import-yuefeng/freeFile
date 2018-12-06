@@ -25,6 +25,9 @@ WORKDIR /freeFileServer
 
 RUN wget https://dl.minio.io/client/mc/release/linux-amd64/mc && \
     chmod +x ./mc && cp ./mc /bin/ 
+
+RUN echo $ACCESSKEY $SECRETKEY
+
 RUN mc config host add minio http://118.126.93.123:9000 $ACCESSKEY $SECRETKEY
 
 EXPOSE 65527
