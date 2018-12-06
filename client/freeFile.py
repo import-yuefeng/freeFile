@@ -97,7 +97,7 @@ class freeFile(object):
         Initialize/check the freeFile configuration file.
         """
 
-        OSSSERVERURLDEFULT = "http://115.238.228.39:32771"
+        OSSSERVERURLDEFULT = "http://115.238.228.39:32771/v1"
 
         try:
             if os.path.exists("/etc/freeFile/ff.conf"):
@@ -179,6 +179,7 @@ class freeFile(object):
                 if self.action == 'pull':
                     if "/" in args.name:
                         self.nameSpace = args.name
+                        print(args.name)
                     else:
                         self.name = args.name
                 else:
@@ -240,7 +241,7 @@ class freeFile(object):
                 self.expiredTime = '72h'
 
             response = requests.get(url=self.OSSSERVERURL+'/applyupload?&FIN=%s&time=%s&expired=%s&nameSpace=%s&fileName=%s'%(
-                self.FIN+"tar.gz", timestamp, self.expiredTime, self.hostName, self.GetOriginFileName()), headers=headers)
+                self.FIN+"tar.gz", timestamp, self.expiredTime, self.name, self.GetOriginFileName()), headers=headers)
             responseJson = response.json()
             if responseJson["statusCode"] != 200:
                 print("\033[1;31;40m[ERROR]\033[0m %s"%responseJson["message"])
@@ -261,8 +262,9 @@ class freeFile(object):
             else:
                 response = requests.get(url=self.OSSSERVERURL+'/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace=None'%(
                     self.FIN+"tar.gz", timestamp, self.expiredTime))
-
+            
             responseJson = response.json()
+
             if responseJson["statusCode"] != 200:
                 print("\033[1;31;40m[ERROR]\033[0m %s"%responseJson["message"])
                 print("\033[1;31;40m[statusCode]\033[0m %s"%responseJson["statusCode"])
@@ -318,7 +320,7 @@ class freeFile(object):
         print("\n")
         print("\033[1;37m[INFO]\033[0m Use nameSPace pull file: "+"\033[1;32m"+self.hostName + "/"+nameSPace+"\033[0m")
         print("\n")
-
+        return self.hostName + "/"+nameSPace
 
     def CreateArchive(self) -> str:
         """Create an archive file format function for uploading files
@@ -336,7 +338,7 @@ class freeFile(object):
                 self.FIN, self.name = self.CreateFileIdentificationName()
             else:
                 self.FIN = self.name
-                self.OutputNamespace(self.name)
+                self.name = self.OutputNamespace(self.name)
 
 
             sysstr = platform.system()
@@ -426,7 +428,9 @@ class freeFile(object):
         if self.CheckCommand() == 1:
             #  User initiated a push request
             self.CreateArchive()
+
             self.PushArchive()
+
         elif self.CheckCommand() == 2:
             # User initiated pull request
             self.PullArchive()

@@ -24,7 +24,7 @@ def Upload():
     expiredTime = request.args.get("expired")
     nameSpace = request.args.get("nameSpace")
     fileName = request.args.get("fileName")
-        
+
     if isinstance(FIN, str) or isinstance(nameSpace, str) \
         or isinstance(expiredTime, str) \
         or isinstance(time, str):   
@@ -62,7 +62,7 @@ def Upload():
 @app.route('/v1/applydownload')
 def Download():
     global redisCli
-    
+
     FIN = request.args.get("FIN")
     time = request.args.get("time")
     expiredTime = request.args.get("expired")    
@@ -81,7 +81,8 @@ def Download():
                 return response
             else:
                 result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, nameSpace), shell=True)
-        elif nameSpace == None or nameSpace == "":
+        # elif nameSpace == None or nameSpace == "":
+        else:
             result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, FIN), shell=True)
 
 
