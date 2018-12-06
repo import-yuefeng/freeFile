@@ -44,10 +44,11 @@ class freeFile(object):
     
     Thanks to @yifan Gao for the inspiration provided by the senior.
 
-    Built on the efficient object storage[Object storage service](minio).
+    Built on the Object storage service(minio).
 
     """
     OSINFOCMD = "uname -a"
+    OSSSERVERURLDEFULT = "http://115.238.228.39:32771"
 
 
 
@@ -96,40 +97,52 @@ class freeFile(object):
         Initialize/check the freeFile configuration file.
         """
 
-        if os.path.exists("/etc/freeFile/ff.conf"):
-            try:
-                print("\033[1;32m[SUCCESS]\033[0m Find the configFile Success!")
-                print("\033[1;37m[INFO]\033[0m configFile in /etc/freeFile/ff.conf")
-                self.hostName = ConfigRead().getConfig("baseConfig", "name")
-                self.OSS_Choice = ConfigRead().getConfig("baseConfig", "OSS_Choice")
-                self.encryptBool = ConfigRead().getConfig("baseConfig", "encrypt")
-            except IndexError:
-                print("\033[1;31;40m[ERROR]\033[0m Read config Error!")
-                subprocess.check_output("rm /etc/freeFile/ff.conf", shell=True)
-                exit(1)
-        else:
-            print("\033[1;35m[WARNING]\033[0m Not find configFile!")
-            print("\033[1;32m[CONFIGURE]\033[0m Please configure your configFile!")
-            name = input("\033[1;32m[INPUT]\033[0m yourName[default HostName]: ")
-            OSS_Choice = input("\033[1;32m[CHOOSE]\033[0m Input your Choose\n[1]. Minio(default)\n[2]. AliYun\n[3]. Amazon S3\n[4]. Google Cloud\nYour Choose: ")
-            if name == "\n":
-                name = socket.gethostname()
-            elif OSS_Choice == '\n' or OSS_Choice == '':
-                OSS_Choice = "Minio"
-            try:
-                subprocess.check_output("sudo mkdir /etc/freeFile", shell=True)
-            except subprocess.CalledProcessError:
-                print("\033[1;35m[WARNING]\033[0m /etc/freeFile exists!")
-            subprocess.check_output("sudo touch /etc/freeFile/ff.conf", shell=True)     
-            subprocess.check_output("sudo chmod -R 777 /etc/freeFile/", shell=True)
+        OSSSERVERURLDEFULT = "http://115.238.228.39:32771"
 
-            writeConfiger = open("/etc/freeFile/ff.conf", "w")
-            writeConfiger.write("[baseConfig]\nname=%s\nOSS_Choice=%s\nencrypt=no\n" %(name, OSS_Choice))
-            writeConfiger.close()
-            print("\033[1;32m[SUCCESS]\033[0m Configure Success!")
-            # Recursive call to read the configuration file after generating a new configuration file
-            self.initConfig()
+        try:
+            if os.path.exists("/etc/freeFile/ff.conf"):
+                try:
+                    print("\033[1;32m[SUCCESS]\033[0m Find the configFile Success!")
+                    print("\033[1;37m[INFO]\033[0m configFile in /etc/freeFile/ff.conf")
+                    self.hostName = ConfigRead().getConfig("baseConfig", "name")
+                    self.OSS_Choice = ConfigRead().getConfig("baseConfig", "OSS_Choice")
+                    self.encryptBool = ConfigRead().getConfig("baseConfig", "encrypt")
+                    self.OSSSERVERURL = ConfigRead().getConfig("baseConfig", "OSSSERVERURL")
 
+                except IndexError:
+                    print("\033[1;31;40m[ERROR]\033[0m Read config Error!")
+                    subprocess.check_output("rm /etc/freeFile/ff.conf", shell=True)
+                    exit(1)
+            else:
+                print("\033[1;35m[WARNING]\033[0m Not find configFile!")
+                print("\033[1;32m[CONFIGURE]\033[0m Please configure your configFile!")
+                name = input("\033[1;32m[INPUT]\033[0m yourName[default HostName]: ")
+                OSS_Choice = input("\033[1;32m[CHOOSE]\033[0m Input your Choose\n[1]. Minio(default) [2]. AliYun\n[3]. Amazon S3 [4]. Google Cloud\nYour Choose: ")
+                OSSSERVERURL = input("\033[1;32m[INPUT]\033[0m Your OSS SERVER URL:[default Official]: ")
+
+                if name == "\n":
+                    name = socket.gethostname()
+                elif OSS_Choice == '\n' or OSS_Choice == '':
+                    OSS_Choice = "Minio"
+                elif OSSSERVERURL == '\n' or OSSSERVERURL == '':
+                    OSSSERVERURL = OSSSERVERURLDEFULT
+                try:
+                    subprocess.check_output("sudo mkdir /etc/freeFile", shell=True)
+                except subprocess.CalledProcessError:
+                    print("\033[1;35m[WARNING]\033[0m /etc/freeFile exists!")
+                subprocess.check_output("sudo touch /etc/freeFile/ff.conf", shell=True)     
+                subprocess.check_output("sudo chmod -R 777 /etc/freeFile/", shell=True)
+
+                writeConfiger = open("/etc/freeFile/ff.conf", "w")
+                writeConfiger.write("[baseConfig]\nname=%s\nOSS_Choice=%s\nencrypt=no\nOSSSERVERURL=%s" %(name, OSS_Choice, OSSSERVERURL))
+                writeConfiger.close()
+                print("\033[1;32m[SUCCESS]\033[0m Configure Success!")
+                # Recursive call to read the configuration file after generating a new configuration file
+                self.initConfig()
+        except KeyboardInterrupt:
+            print("\n")
+            print("\033[1;31;40m[ERROR]\033[0m User active exit!")
+            exit(1)
 
 
     def initCommand(self):
@@ -138,7 +151,7 @@ class freeFile(object):
         Initialize the parameters read by argoarse.
         """        
 
-        parser = argparse.ArgumentParser(description='Very welcome to use freeFile! Please check the options currently supported by freeFile\n')  
+        parser = argparse.ArgumentParser(description='Welcome to use freeFile! Please check the options currently supported by freeFile\n')  
         parser.add_argument("-i", "--source",  dest = "filePath", help = "File location to upload")
         parser.add_argument("-n", "--name", dest = "name", help = "Use FIN/nameSpace to Upload/Download files")
         parser.add_argument("-t", "--time", dest = "time", help = "Set file expiration time")
@@ -193,6 +206,7 @@ class freeFile(object):
 
     def CheckCommand(self):
         if self.action == "push":
+
             return 1
         elif self.action == "pull":
             self.FIN = self.name
@@ -223,9 +237,9 @@ class freeFile(object):
                     }
             timestamp = str(int(time.time()))
             if self.expiredTime == None:
-                self.expiredTime = '24h'
+                self.expiredTime = '72h'
 
-            response = requests.get(url='http://115.238.228.39:9091/applyupload?&FIN=%s&time=%s&expired=%s&nameSpace=%s&fileName=%s'%(
+            response = requests.get(url=self.OSSSERVERURL+'/applyupload?&FIN=%s&time=%s&expired=%s&nameSpace=%s&fileName=%s'%(
                 self.FIN+"tar.gz", timestamp, self.expiredTime, self.hostName, self.GetOriginFileName()), headers=headers)
             responseJson = response.json()
             if responseJson["statusCode"] != 200:
@@ -241,11 +255,11 @@ class freeFile(object):
                 self.expiredTime = '24h'
             timestamp = str(int(time.time()))
             if self.nameSpace != None:
-
-                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=%s'%(
+                self.FIN = ""
+                response = requests.get(url=self.OSSSERVERURL+'/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace=%s'%(
                     self.FIN+"tar.gz", timestamp, self.expiredTime, self.nameSpace))
             else:
-                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=None'%(
+                response = requests.get(url=self.OSSSERVERURL+'/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace=None'%(
                     self.FIN+"tar.gz", timestamp, self.expiredTime))
 
             responseJson = response.json()
@@ -265,8 +279,11 @@ class freeFile(object):
     def PullArchive(self):
         downloadUrl = self.ApplyApi("pull")
         try:
+            if self.nameSpace != None:
+                self.name = self.nameSpace[self.nameSpace.find("/")+1:]            
             subprocess.check_output(["wget", downloadUrl, "-O", '{0}.tar.gz'.format(self.name)])
-        except:
+
+        except KeyboardInterrupt:
             print("\033[1;31;40m[ERROR]\033[0m Not found file from OSS Service")
         else:
             print("\033[1;32m[SUCCESS]\033[0m Successfully pull file is "+self.name)
@@ -284,6 +301,7 @@ class freeFile(object):
             subprocess.check_output(shareUrl + self.archiveFileName, shell=True)
         except:
             print("\033[1;31;40m[ERROR]\033[0m OSS Service Error")
+
         else:
             print("\033[1;32m[SUCCESS]\033[0m Successfully push file is "+self.archiveFileName)
 
@@ -293,6 +311,13 @@ class freeFile(object):
                 # Output when the user needs a QR code
                 print("↓↓↓↓↓↓ Download QRcode ↓↓↓↓↓↓")
                 print(sh.qrencode("-o", "-", "-t", "UTF8", "-s", "3", "%s"%(self.ApplyApi("pull"))))
+
+    def OutputNamespace(self, nameSPace):
+
+        print("\033[1;32m[SUCCESS]\033[0m Successfully Create nameSPace is "+self.hostName + "/"+nameSPace)
+        print("\n")
+        print("\033[1;37m[INFO]\033[0m Use nameSPace pull file: "+"\033[1;32m"+self.hostName + "/"+nameSPace+"\033[0m")
+        print("\n")
 
 
     def CreateArchive(self) -> str:
@@ -305,23 +330,26 @@ class freeFile(object):
         if self.CheckPathVaildIsError(Path):
             # Check if the location of the file to be uploaded is correct
             if self.CheckNameIsNone():
-                # If the download file identifier [name] is not specified, a new file hash, FIN, is automatically generated.
+                # If the download file identifier [name] is not specified, a new file hash, \
+                # FIN, is automatically generated.
                 # Automatic unpacking generated FIN and name
                 self.FIN, self.name = self.CreateFileIdentificationName()
+            else:
+                self.FIN = self.name
+                self.OutputNamespace(self.name)
 
 
-            # subprocess.check_output("tar -jcvf " + self.name + ".tar.bz2 -C" + Path, shell=True)
             sysstr = platform.system()
 
             if(sysstr =="Windows"):
+                # freeFile not work on Windows.
                 print("\033[1;31;40m[ERROR]\033[0m freeFile not work on Windows.")
                 exit(1)
-
             elif(sysstr == "Linux"):
                 subprocess.check_output("tar -cf - %s | pv -s $(du -sb %s | awk '{print $1}') | gzip > %s.tar.gz"%(self.filePath, self.filePath, self.FIN), shell=True)
             else:
                 subprocess.check_output("tar -cf - %s | pv -s $(($(du -sk %s | awk '{print $1}') * 1024)) | gzip > %s.tar.gz"%(self.filePath, self.filePath, self.FIN), shell=True)
-            
+
             self.archiveFileName = self.FIN + ".tar.gz"
         else:
             print("\033[1;31;40m[ERROR]\033[0m Not found file.")
@@ -418,6 +446,7 @@ class ConfigRead(object):
         path = '/etc/freeFile/ff.conf'
         config.read(path)
         return config.get(section, key)
+
 
 
 
