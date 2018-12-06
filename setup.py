@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name="freeFile",
     packages=find_packages(),
-    version='0.0.9',
+    version='0.1.0',
     description="command line tool for auto update/download program.",
     author="Cat.1",
     author_email='git@gansi.me',
