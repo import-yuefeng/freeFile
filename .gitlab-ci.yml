@@ -58,7 +58,6 @@ build:
 pre_deploy:
   stage: deploy_image
   script: 
-    - 
     - docker push 118.126.93.123:5000/freefile:test
   when: on_success
   only:
