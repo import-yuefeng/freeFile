@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app, resources=r'/*')
 
 
-# redisCli = redis.Redis(host=redisDb, port=6379, decode_responses=True, db=0)  
+redisCli = redis.Redis(host=redisDb, port=6379, decode_responses=True, db=0)  
 
 
 @app.route('/v1/applyupload')

@@ -241,11 +241,10 @@ class freeFile(object):
                 self.expiredTime = '24h'
             timestamp = str(int(time.time()))
             if self.nameSpace != None:
-
-                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=%s'%(
+                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace=%s'%(
                     self.FIN+"tar.gz", timestamp, self.expiredTime, self.nameSpace))
             else:
-                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace/fileName=None'%(
+                response = requests.get(url='http://115.238.228.39:9091/applydownload?&FIN=%s&time=%s&expired=%s&nameSpace=None'%(
                     self.FIN+"tar.gz", timestamp, self.expiredTime))
 
             responseJson = response.json()
