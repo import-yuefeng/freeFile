@@ -59,7 +59,7 @@ pre_deploy:
   stage: deploy_image
   script: 
     # - docker push 118.126.93.123:5000/freefile:latest
-    - docker login -u $loginUser -p $loginPasswd
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - docker push $loginUser/freefile:latest
   when: on_success
   only:
