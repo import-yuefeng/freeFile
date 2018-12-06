@@ -2,7 +2,6 @@
 User
 freeFile.egg-info
 dist
-a.txt
 *.pyc
 *.pyo
 env/
@@ -17,3 +16,13 @@ _mailinglist
 .pytest_cache/
 .idea/
 docs/_build/
+develop-eggs/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+MANIFEST
+
