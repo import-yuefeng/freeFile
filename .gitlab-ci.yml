@@ -50,7 +50,7 @@ cleaner:
 build:
   stage: build_image
   script:
-    - docker tag catone/freefile:pre_build 118.126.93.123:5000/freefile:latest 
+    - docker tag catone/freefile:pre_build catone/freefile:latest 
   dependencies:
     - pyTest  
   when: always
