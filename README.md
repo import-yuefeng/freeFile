@@ -4,7 +4,7 @@ freeFile is still in the early development, if there is any doubt, please mentio
 
 freeFile 还在早期开发中, 如果使用有疑问, 请提起Issue.
 
-![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)![gitlab-ci](https://img.shields.io/badge/Gitlab-ci-red.svg)![MIT](https://img.shields.io/badge/MIT-red.svg)![freeFile](https://img.shields.io/badge/freeFile-0.1.0-red.svg)
+![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)  ![gitlab-ci](https://img.shields.io/badge/Gitlab-ci-red.svg)  ![MIT](https://img.shields.io/badge/MIT-red.svg)   ![freeFile](https://img.shields.io/badge/freeFile-0.1.0-red.svg)
 
 
 
@@ -73,11 +73,13 @@ test.txt
 
 
 
-# Deploy a private freeFileServer 
+# Deploy private freeFileServer 
 
 
 
-[Deploy a private freeFileServer ](./private freeFileServer)
+[Deploy private freeFileServer ](./private freeFileServer)
+
+
 
 
 
@@ -105,7 +107,7 @@ test.txt
 
 8. 支持bin指令ff, 而不需要使用python freeFile.py 才能使用, 默认bin在/Library/Frameworks/Python.framework/Versions/3.6/bin/, 部分设备需要配置软链接到/usr/local/bin
 
-9. 分离部分过耦合组件
+9. 分离过耦合组件
 
 10. 修复部分错误
 
@@ -119,6 +121,5 @@ test.txt
 ### 下个目标:
 
 1. 支持流文件传输
-2. 重构freeFileClient, 过于耦合, 拆分组件
-3. 加入freeFileServer限速功能
-4. 实现对于freeFileServer的持续交付和持续部署[利用k8s的滚动更新]
+2. 加入freeFileServer限速功能
+3. 实现对于freeFileServer的持续交付和持续部署[利用k8s的滚动更新]
