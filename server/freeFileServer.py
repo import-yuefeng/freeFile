@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app, resources=r'/*')
 
 
-redisCli = redis.Redis(host='127.0.0.1', port=32768, decode_responses=True, db=0)  
+redisCli = redis.Redis(host="redis", port=6379, decode_responses=True, db=0)  
 
 
 @app.route('/v1/applyupload')
@@ -74,7 +74,7 @@ def Download():
         if FIN == "tar.gz":
             try:
                 nameSpace = redisCli.get(nameSpace)
-            except:
+            except :
                 response = Response(json.dumps({"message":"nameSpace Error", "shareUrl":"", "statusCode":420}), mimetype = 'application/json')
                 response.headers.add('Server','python flask')       
                 response.headers['Access-Control-Allow-Origin'] = '*'
@@ -91,7 +91,7 @@ def Download():
 
         shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@?%&]+)", str(result))[0]
         response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
-    except:
+    except :
         response = Response(json.dumps({"message":"Server Error Or Object does not exist", "shareUrl":"", "statusCode":500}), mimetype = 'application/json')
     finally:
         response.headers.add('Server','python flask')       
@@ -119,7 +119,7 @@ def Download():
             
 if __name__ == '__main__':
 
-    app.run(host="0.0.0.0", port=int(65527), debug = True)
+    app.run(host="0.0.0.0", port=int(65527), debug = False)
 
 
 
