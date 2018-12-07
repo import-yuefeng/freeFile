@@ -13,11 +13,12 @@ import getopt
 import requests
 import argparse
 import subprocess
-import initConfig
-from API.ApplyApi import ApplyApi
-from API.PullArchive import PullArchive
-from API.PushArchive import PushArchive
-from API.CreateArchive import CreateArchive
+sys.path.append('..')
+from client import initConfig
+from client.API.ApplyApi import ApplyApi
+from client.API.PullArchive import PullArchive
+from client.API.PushArchive import PushArchive
+from client.API.CreateArchive import CreateArchive
 
 
 

@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="freeFile",
-    packages=find_packages(),
-    version='0.1.2',
+
+    version='0.1.4',
     description="command line tool for auto update/download program.",
     author="Cat.1",
     author_email='git@gansi.me',
@@ -12,8 +12,9 @@ setup(
     download_url='https://github.com/import-yuefeng/freeFile/archive/master.zip',
     keywords=['command', 'line', 'tool', 'oss', 'update', 'download'],
     scripts=['./ff'],
-    # entry_points={'console_scripts': [
-    # './ff']},
+    packages=['client', 'client/API'],
+    include_package_data=True,
+
     install_requires=[
         'requests',
         'argparse',
