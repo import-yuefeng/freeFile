@@ -67,14 +67,13 @@ def Download():
     time = request.args.get("time")
     expiredTime = request.args.get("expired")    
     nameSpace = request.args.get("nameSpace")
-    print(FIN)
-    print(nameSpace)
+
+
     try:
 
         if FIN == "tar.gz":
             try:
                 nameSpace = redisCli.get(nameSpace)
-                print(nameSpace)
             except:
                 response = Response(json.dumps({"message":"nameSpace Error", "shareUrl":"", "statusCode":420}), mimetype = 'application/json')
                 response.headers.add('Server','python flask')       
@@ -84,8 +83,9 @@ def Download():
                 return response
             else:
                 result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, nameSpace), shell=True)
-        # elif nameSpace == None or nameSpace == "":
+
         else:
+
             result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, FIN), shell=True)
 
 
