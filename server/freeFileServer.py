@@ -24,14 +24,14 @@ def Upload():
     expiredTime = request.args.get("expired")
     nameSpace = request.args.get("nameSpace")
     fileName = request.args.get("fileName")
-        
+
     if isinstance(FIN, str) or isinstance(nameSpace, str) \
         or isinstance(expiredTime, str) \
         or isinstance(time, str):   
 
         if isinstance(nameSpace, str):
             try:
-                redisCli.set(nameSpace+'/'+FIN[:6], FIN)
+                redisCli.set(nameSpace, FIN)
             except:
                 response = Response(json.dumps({"message":"nameSpace Error", "shareUrl":"", "statusCode":420}), mimetype = 'application/json')
 
@@ -39,7 +39,7 @@ def Upload():
             result = subprocess.check_output("mc share upload minio/test/"+FIN, shell=True)
             shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@]+)<FILE>", str(result))[0]
             response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
-            
+
         else:
 
             if 'h' in expiredTime or 'm' in expiredTime or 's' in expiredTime:
@@ -62,16 +62,19 @@ def Upload():
 @app.route('/v1/applydownload')
 def Download():
     global redisCli
-    
+
     FIN = request.args.get("FIN")
     time = request.args.get("time")
     expiredTime = request.args.get("expired")    
     nameSpace = request.args.get("nameSpace")
+    print(FIN)
+    print(nameSpace)
     try:
 
-        if FIN == None or FIN == "" or FIN == "tar.gz":
+        if FIN == "tar.gz":
             try:
                 nameSpace = redisCli.get(nameSpace)
+                print(nameSpace)
             except:
                 response = Response(json.dumps({"message":"nameSpace Error", "shareUrl":"", "statusCode":420}), mimetype = 'application/json')
                 response.headers.add('Server','python flask')       
@@ -81,7 +84,8 @@ def Download():
                 return response
             else:
                 result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, nameSpace), shell=True)
-        elif nameSpace == None or nameSpace == "":
+        # elif nameSpace == None or nameSpace == "":
+        else:
             result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, FIN), shell=True)
 
 
