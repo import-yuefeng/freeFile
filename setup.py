@@ -3,8 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="freeFile",
-
-    version='0.1.4',
+    version='0.1.6',
     description="command line tool for auto update/download program.",
     author="Cat.1",
     author_email='git@gansi.me',
@@ -14,7 +13,6 @@ setup(
     scripts=['./ff'],
     packages=['client', 'client/API'],
     include_package_data=True,
-
     install_requires=[
         'requests',
         'argparse',
