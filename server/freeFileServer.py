@@ -68,9 +68,7 @@ def Download():
     expiredTime = request.args.get("expired")    
     nameSpace = request.args.get("nameSpace")
 
-
     try:
-
         if FIN == "tar.gz":
             try:
                 nameSpace = redisCli.get(nameSpace)
@@ -83,12 +81,9 @@ def Download():
                 return response
             else:
                 result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, nameSpace), shell=True)
-
         else:
 
             result = subprocess.check_output("mc share download --expire %s minio/test/%s"%(expiredTime, FIN), shell=True)
-
-
         shareUrl = re.findall(r"Share: ([a-zA-Z0-9\.\/\:\-\s\=\_\@?%&]+)", str(result))[0]
         response = Response(json.dumps({"message":"Success Get share power", "shareUrl":shareUrl, "statusCode":200}), mimetype = 'application/json')
     except :

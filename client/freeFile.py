@@ -114,6 +114,7 @@ class freeFile(object):
                         self.nameSpace = args.name
                     else:
                         self.name = args.name
+                        self.FIN = args.name
                 else:
                     self.name = args.name
                 # When pull to local, both FIN and name should be arguments to args.name
