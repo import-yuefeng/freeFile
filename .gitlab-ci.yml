@@ -1,6 +1,4 @@
 stages: 
-  # - testDeploy
-  - loginDocker
   - pre_build
   - deployTest
   - test
@@ -9,15 +7,9 @@ stages:
   - deploy_image
 
 
-# before_script:
-#   # 测试docker是否正常启动
-#   - whoami
-#   - docker info
-
 pre_build:
   stage: pre_build
   script:
-    # 重新构建docker_image
     - docker build -t="catone/freefile:pre_build" -f ./server/Dockerfile ./server/
   when: always
 
@@ -58,19 +50,17 @@ cleaner:
 build:
   stage: build_image
   script:
-    # 重新构建docker_image
-    - docker build -t="catone/freefile:test" -f ./server/Dockerfile ./server/
+    - docker tag catone/freefile:pre_build catone/freefile:latest 
   dependencies:
     - pyTest  
   when: always
 
 pre_deploy:
-  # push到hub.docker 远端用于部署
   stage: deploy_image
   script: 
-    - docker push catone/freefile:test
-  dependencies:
-    - loginDocker
+    # - docker push 118.126.93.123:5000/freefile:latest
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - docker push $DOCKER_USERNAME/freefile:latest
   when: on_success
   only:
     - dev

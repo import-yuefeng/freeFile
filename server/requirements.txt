@@ -1,4 +1,9 @@
 redis==3.0.1
 flask-cors==3.0.7
 flask==1.0.2
-sh==1.12.14
+atomicwrites==1.2.1 
+attrs==18.2.0 
+more-itertools==4.3.0 
+pluggy==0.8.0 
+py==1.7.0 
+pytest==4.0.1
