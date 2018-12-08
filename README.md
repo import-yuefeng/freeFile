@@ -1,6 +1,6 @@
 # freeFile
 
-freeFile is still in the early development, if there is any doubt, please mention Issue.
+freeFile is still in the early development, if there is any doubt -> new Issue.
 
 freeFile 还在早期开发中, 如果使用有疑问, 请提起Issue.
 
@@ -121,5 +121,7 @@ test.txt
 ### 下个目标:
 
 1. 支持流文件传输
+
 2. 加入freeFileServer限速功能
 3. 实现对于freeFileServer的持续交付和持续部署[利用k8s的滚动更新]
+
