@@ -158,7 +158,7 @@ class freeFile(object):
                 self.nameSpace = self.nameSpace+"/"+self.FIN[:6]
 
             shareUrl = ApplyApi("push", self.expiredTime, self.FIN, self.name, self.OSSSERVERURL, self.nameSpace, self.filePath)
-            PushArchive(shareUrl, archiveFileName)
+            PushArchive(shareUrl, archiveFileName, self.quiet)
 
             if self.qrcode == True:
 
