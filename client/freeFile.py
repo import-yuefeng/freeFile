@@ -59,12 +59,10 @@ class freeFile(object):
         Initialization parameters, configuration files, OSS configuration information, 
         Argument command line parameters        
         """
-
         initConfig.initConfig()
         self.initArgument()
-
         self.initCommand()
-
+        initConfig.CheckDependency(self.notcheck)
 
 
     def initArgument(self):
@@ -91,8 +89,9 @@ class freeFile(object):
         parser.add_argument("-e", "--encrypt", dest = "encrypt", help = "If you need a private access file/directory, please give your gpg public key location")
         parser.add_argument('push', action='store_true', help='Upload the file to the oss server')
         parser.add_argument('pull', action='store_true', help='Download files from oss server')
-        parser.add_argument('-q', "--quiet", action='store_true', help='Run freeFile quietly')
+        parser.add_argument('-q', "--quiet", dest = "quiet", action='store_true', help='Run freeFile quietly')
         parser.add_argument('-qr', "--qrcode", dest = "qrcode", action='store_true', help='Need to output download QRcode')
+        parser.add_argument('-nc', "--notcheck", dest = "notcheck", action='store_true', help='Do not check dependencies')
 
         try:
             # The first command must be push/pull or it will return help information
@@ -121,6 +120,9 @@ class freeFile(object):
                 self.expiredTime = args.time
                 self.encrypt = args.encrypt
                 self.qrcode = args.qrcode
+                self.quiet = args.quiet
+
+                self.notcheck = args.notcheck
             else:
                 parser.parse_args(["-h"])
                 exit(1)
@@ -130,10 +132,10 @@ class freeFile(object):
     def CheckCommand(self):
         if self.action == "push":
 
-            return 1
+            return "push"
         elif self.action == "pull":
             self.FIN = self.name
-            return 2
+            return "pull"
 
 
 
@@ -148,7 +150,7 @@ class freeFile(object):
 
 
     def main(self):
-        if self.CheckCommand() == 1:
+        if self.CheckCommand() == "push":
             self.FIN, archiveFileName = CreateArchive(self.hostName, self.filePath, self.name)
             if self.name != None:
                 self.nameSpace = self.nameSpace+"/"+self.name
@@ -157,16 +159,17 @@ class freeFile(object):
 
             shareUrl = ApplyApi("push", self.expiredTime, self.FIN, self.name, self.OSSSERVERURL, self.nameSpace, self.filePath)
             PushArchive(shareUrl, archiveFileName)
+
             if self.qrcode == True:
 
                 print("↓↓↓↓↓↓ Download QRcode ↓↓↓↓↓↓")
                 print(sh.qrencode("-o", "-", "-t", "UTF8", "-s", "3", "%s"%(ApplyApi("pull", self.expiredTime, self.FIN, self.name, self.OSSSERVERURL, self.nameSpace, self.filePath))))
 
-        elif self.CheckCommand() == 2:
+        elif self.CheckCommand() == "pull":
 
             downloadUrl = ApplyApi("pull", self.expiredTime, self.FIN, self.name, self.OSSSERVERURL, self.nameSpace, self.filePath)
 
-            PullArchive(downloadUrl, self.name)
+            PullArchive(downloadUrl, self.name, self.quiet)
 
         else:
 

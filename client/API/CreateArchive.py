@@ -1,4 +1,4 @@
-
+import os
 import platform
 import subprocess
 import hashlib
@@ -10,7 +10,6 @@ from client.API.ApplyApi import ApplyApi
 
 
 def CheckPathVaildIsError(path) -> bool:
-    import os
     try:
         fileBool = os.access(path, os.F_OK)
     except:

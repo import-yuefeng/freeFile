@@ -2,11 +2,12 @@ import re
 import sys
 import json
 import redis
-# import pymysql
 import subprocess
 from flask_cors import CORS
 from flask import render_template,redirect
 from flask import Flask,request,Response,jsonify
+
+
 
 app = Flask(__name__)
 CORS(app, resources=r'/*')
