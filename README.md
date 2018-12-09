@@ -6,7 +6,7 @@ freeFile 还在早期开发中, 如果使用有疑问, 请提起Issue.
 
 ![Python3.6.4](https://img.shields.io/badge/Python-3.6.4-green.svg)  ![gitlab-ci](https://img.shields.io/badge/Gitlab-ci-red.svg)  ![MIT](https://img.shields.io/badge/MIT-red.svg)   ![freeFile](https://img.shields.io/badge/freeFile-0.1.0-red.svg)
 
-
+![demo](./demo.png)
 
 --------------------------
 
