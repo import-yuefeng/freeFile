@@ -1,6 +1,6 @@
 # freeFile
 
-freeFile is still in the early development, if there is any doubt, please mention Issue.
+freeFile is still in the early development, if there is any doubt, please -> Issue.
 
 freeFile 还在早期开发中, 如果使用有疑问, 请提起Issue.
 
