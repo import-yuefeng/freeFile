@@ -10,7 +10,7 @@ freeFile 还在早期开发中, 如果使用有疑问, 请提起Issue.
 ![gitlab-ci](https://img.shields.io/badge/Gitlab-CI-red.svg)
 ![MIT](https://img.shields.io/badge/MIT-red.svg)
 ![freeFile](https://img.shields.io/badge/freeFile-0.1.9-red.svg)
-![Build Status](https://img.shields.io/travis/import-yuefeng/freeFile.svg?style=flat-square)(https://travis-ci.org/import-yuefeng/freeFile)
+![Build Status](https://img.shields.io/travis/import-yuefeng/freeFile.svg?style=flat-square)
 
 ![demo](./demo.gif)
 </div>
