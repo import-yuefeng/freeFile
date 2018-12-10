@@ -1,6 +1,6 @@
 <div align="center">
 
-# freeFile
+# freeFile 📃
 
 freeFile is still in the early development, if there is any doubt, please -> Issue.
 
