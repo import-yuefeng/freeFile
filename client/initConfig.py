@@ -45,7 +45,7 @@ def CheckDependency(checkBool):
 
     else:
         print("\033[1;37m[INFO]\033[0m Check dependency program")
-        for app in ['pv', 'gpg', 'tar', 'wget', 'curl', 'brew', 'qrencode']:
+        for app in ['pv', 'gpg', 'tar', 'wget', 'curl', 'qrencode']:
             try:
                 print("\r\033[1;32m[CHECKING] ->\033[0m ".format(app)+"\033[1;37m"+str(app)+"\033[0m ", end="")            
                 subprocess.check_output("command -v %s >/dev/null 2>&1 || { echo >&2 \"\n\033[1;35m[WARNING]\033[0m freeFile require \033[1;31;40m%s\033[0m but it's not installed.\"; exit 1;}"%(app, app), shell=True)

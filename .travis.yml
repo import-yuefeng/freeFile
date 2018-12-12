@@ -27,5 +27,5 @@ notifications:
 
 after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker tag catone/freefile:latest catone/freefile:pre_build
+  - docker tag catone/freefile:pre_build catone/freefile:latest
   - docker push catone/freefile:latest
