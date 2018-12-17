@@ -73,6 +73,39 @@ test.txt
 
 
 
+# USE
+
+
+
+.. code-block:: bash
+
+```bash
+usage: ff [-h] [-i FILEPATH] [-n NAME] [-t TIME] [-e ENCRYPT] [-q] [-qr] [-nc]
+
+Welcome to use freeFile! Please check the options currently supported by
+freeFile
+
+positional arguments:
+  push                  Upload the file to the oss server
+  pull                  Download files from oss server
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i FILEPATH, --source FILEPATH
+                        File location to upload
+  -n NAME, --name NAME  Use FIN/nameSpace to Upload/Download files
+  -t TIME, --time TIME  Set file expiration time
+  -e ENCRYPT, --encrypt ENCRYPT
+                        If you need a private access file/directory, please
+                        give your gpg public key location
+  -q, --quiet           Run freeFile quietly
+  -qr, --qrcode         Need to output download QRcode
+  -nc, --notcheck       Do not check dependencies
+
+```
+
+
+
 # Deploy private freeFileServer 
 
 
