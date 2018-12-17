@@ -1,0 +1,55 @@
+stages: 
+  - pre_build
+  - deployTest
+  - test
+  - cleanTest
+  - build_image
+  - deploy_image
+
+
+pre_build:
+  stage: pre_build
+  script:
+    - docker build -t="catone/inspire:pre_build" -f ./Dockerfile .
+  when: always
+
+
+deployTest:
+  stage: deployTest
+  script:
+    - docker-compose up
+  when: always
+
+
+pyTest:
+  stage: test
+  script:
+    - echo pyTest
+  when: always
+
+cleaner:
+  stage: cleanTest
+  script:
+    - echo cleanTestEnv
+    - docker rm -f redis_test || true
+  when: always
+
+
+build:
+  stage: build_image
+  script:
+    - docker tag catone/inspire:pre_build catone/inspire:latest 
+  dependencies:
+    - pyTest  
+  when: always
+
+pre_deploy:
+  stage: deploy_image
+  script: 
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    - docker push $DOCKER_USERNAME/inspire:latest
+  when: on_success
+  only:
+    - dev
+
+

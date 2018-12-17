@@ -9,7 +9,8 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install sshpass
 
-
+dist:
+  ubuntu 16.04
 install:
   - pip install -r ./server/requirements.txt
 
