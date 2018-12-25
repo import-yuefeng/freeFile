@@ -1,4 +1,5 @@
-sudo: required
+sudo: false
+# 在容器内部执行
 
 language: python
   
@@ -30,3 +31,6 @@ after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker tag catone/freefile:pre_build catone/freefile:latest
   - docker push catone/freefile:latest
+  - sshpass -o StrictHostKeychecking=no
+
+
